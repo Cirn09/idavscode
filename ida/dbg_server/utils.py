@@ -7,7 +7,6 @@ def execfile(path: str,
              cwd=None,
              argv=[],
              env={},
-             globals={},
              encoding=None) -> None:
     if encoding is None:
         with open(path, 'rb') as f:
@@ -26,8 +25,10 @@ def execfile(path: str,
         with open(path, 'r', encoding=encoding) as f:
             code_text = f.read()
 
-    globals['__name__'] = '__main__'
-    globals['__file__'] = path
+    globals = {
+        '__name__': '__main__',
+        '__file__': path
+    }
 
     # patch
     orig_argv = sys.argv

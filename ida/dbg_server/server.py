@@ -70,11 +70,10 @@ class _Server(tornado.websocket.WebSocketHandler):
                 cwd = msg['cwd']
                 argv = msg['argv']
                 env = msg['env']
-                globals = msg['globals']
                 encoding = msg['encoding']
                 print(f'[VSC] Executing script {path}')
                 debugpy.wait_for_client()
-                execfile(path, cwd, argv, env, globals, encoding)
+                execfile(path, cwd, argv, env, encoding)
 
     def on_close(self) -> None:
         print('[VSC] Connect closed')
