@@ -73,6 +73,7 @@ class _Server(tornado.websocket.WebSocketHandler):
                 globals = msg['globals']
                 encoding = msg['encoding']
                 print(f'[VSC] Executing script {path}')
+                debugpy.wait_for_client()
                 execfile(path, cwd, argv, env, globals, encoding)
 
     def on_close(self) -> None:
