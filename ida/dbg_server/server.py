@@ -16,6 +16,7 @@ class MessageType(Enum):
     ExecuteScript = 'executeScript'
 
     ServerReady = 'serverReady'
+    DebugServerReady = 'debugServerReady'
     Error = 'error'
 
 
@@ -51,7 +52,7 @@ class _Server(tornado.websocket.WebSocketHandler):
                     debugpy.start_server((host, port))
                     print(f'[VSC] Debug server started on {host}:{port}')
                     self.dbgsrv_running = True
-                self.write_message({'type': MessageType.ServerReady})
+                self.write_message({'type': MessageType.DebugServerReady})
                 
             case MessageType.StopDebugServer:
                 # https://github.com/microsoft/debugpy/issues/870
@@ -74,6 +75,7 @@ class _Server(tornado.websocket.WebSocketHandler):
                 print(f'[VSC] Executing script {path}')
                 debugpy.wait_for_client()
                 execfile(path, cwd, argv, env, encoding)
+                self.write_message({'type': MessageType.ServerReady})
 
     def on_close(self) -> None:
         print('[VSC] Connect closed')
