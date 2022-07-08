@@ -10,12 +10,12 @@ from .config import Config
 from .utils import execfile
 
 class MessageType(Enum):
-    StartDebugServer = 'start_debug_server'
-    StopDebugServer = 'stop_debug_server'
-    StopServer = 'stop_server'
-    ExecuteScript = 'execute_script'
+    StartDebugServer = 'startDebugServer'
+    StopDebugServer = 'stopDebugServer'
+    StopServer = 'stopServer'
+    ExecuteScript = 'executeScript'
 
-    ServerReady = 'server_ready'
+    ServerReady = 'serverReady'
     Error = 'error'
 
 
@@ -39,7 +39,7 @@ class _Server(tornado.websocket.WebSocketHandler):
                     host = msg['host']
                     port = msg['port']
                     logfile = msg['logfile']
-                    python_path = msg['python_path']
+                    python_path = msg['pythonPath']
 
                     if logfile:
                         debugpy.log_to(logfile)
