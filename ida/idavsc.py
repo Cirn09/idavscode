@@ -44,21 +44,25 @@ class Plugin(idaapi.plugin_t):
         This is called by IDA when it is unloading the plugin.
         """
         self.config.save(CONFIG_FILE)
+        self.stop(True)
+
 
     def start(self):
         self.server.start()
         print('[IDAVSC] Server started')
 
-    def stop(self):
+    def stop(self, slient=False):
         try:
             self.server.stop()
             print('[IDAVSC] Server stopped')
         except DebugServerCannotStopError:
-            dialog = ErrorDialog(
-                'Control server stoped, but debug server is still running and cannot be stopped currently.\nCheck here for more: https://github.com/microsoft/debugpy/issues/870'
-            )
-            dialog.Execute()
-            dialog.Free()
+            if not slient:
+                dialog = ErrorDialog(
+                    'Control server stoped, but debug server is still running and cannot be stopped currently.\nCheck here for more: https://github.com/microsoft/debugpy/issues/870'
+                )
+                dialog.Execute()
+                dialog.Free()
+            
 
     def option(self):
         dialog = OptionDialog(self.config.host, self.config.port)
@@ -173,9 +177,9 @@ class ErrorDialog(ida_kernwin.Form):
 BUTTON YES* OK
 IDACODE :: Error
 
-<{text}>
+{c_text}
             """, {
-                'text': self.StringInput(value=text),
+                'c_text': self.StringLabel(value=text),
             })
 
         self.Compile()

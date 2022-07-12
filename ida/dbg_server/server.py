@@ -2,14 +2,13 @@ import sys
 import asyncio
 import json
 import threading
-from enum import Enum
 import debugpy
 import tornado.httpserver, tornado.web, tornado.websocket
 
 from .config import Config
 from .utils import execfile
 
-class MessageType(Enum):
+class MessageType(object):
     StartDebugServer = 'startDebugServer'
     StopDebugServer = 'stopDebugServer'
     StopServer = 'stopServer'
@@ -19,40 +18,44 @@ class MessageType(Enum):
     DebugServerReady = 'debugServerReady'
     Error = 'error'
 
+dbgsrv_running = False
 
 class DebugServerCannotStopError(Exception):
     pass
 
 
 class _Server(tornado.websocket.WebSocketHandler):
-    dbgsrv_running = False
 
     def __init__(self, *args, **kwargs):
-        super(Server, self).__init__(*args, **kwargs)
-        self.dbgsrv_running = False
+        super(_Server, self).__init__(*args, **kwargs)
 
-    def on_message(self, message):
-        msg = json.loads(message.decode("utf8"))
+    def on_message(self, message: str):
+        global dbgsrv_running
+        msg = json.loads(message)
         
         match msg['type']:
             case MessageType.StartDebugServer:
-                if not self.dbgsrv_running:
-                    host = msg['host']
-                    port = msg['port']
-                    logfile = msg['logfile']
-                    python_path = msg['pythonPath']
+                try:
+                    if not dbgsrv_running:
+                        host = msg['host']
+                        port = msg['port']
+                        logfile = msg['logfile']
+                        python_path = msg['pythonPath']
 
-                    if logfile:
-                        debugpy.log_to(logfile)
-                        print(f'[VSC] Debug log will be saved to {logfile}')
-                    if python_path:
-                        debugpy.configure({ "python": python_path })
-                        print(f'[VSC] Python path set to {python_path}')
+                        if logfile:
+                            debugpy.log_to(logfile)
+                            print(f'[VSC] Debug log will be saved to {logfile}')
+                        if python_path:
+                            debugpy.configure({ "python": python_path })
+                            print(f'[VSC] Python path set to {python_path}')
 
-                    debugpy.start_server((host, port))
-                    print(f'[VSC] Debug server started on {host}:{port}')
-                    self.dbgsrv_running = True
-                self.write_message({'type': MessageType.DebugServerReady})
+                        debugpy.listen((host, port))
+                        print(f'[VSC] Debug server started on {host}:{port}')
+                        dbgsrv_running = True
+                    self.write_message({'type': MessageType.DebugServerReady})
+                except RuntimeError as e:
+                    self.write_message({'type': MessageType.Error, 'message': str(e)})
+                    print(e)
                 
             case MessageType.StopDebugServer:
                 # https://github.com/microsoft/debugpy/issues/870
@@ -63,19 +66,29 @@ class _Server(tornado.websocket.WebSocketHandler):
                 print('[VSC] Server stopped')
                 self.close()
             case MessageType.ExecuteScript:
-                if not self.dbgsrv_running:
+                if not dbgsrv_running:
                     self.write_message({'type': MessageType.Error, 'info': 'debug server is not running'})
                     return
 
                 path = msg['path']
                 cwd = msg['cwd']
-                argv = msg['argv']
-                env = msg['env']
-                encoding = msg['encoding']
+                argv = msg.get('argv', [])
+                env = msg.get('env', {})
+                encoding = msg.get('encoding', None)
                 print(f'[VSC] Executing script {path}')
-                debugpy.wait_for_client()
-                execfile(path, cwd, argv, env, encoding)
+
                 self.write_message({'type': MessageType.ServerReady})
+
+                # debugpy.wait_for_client()
+                # import ida_kernwin
+                # ida_kernwin.execute_sync(lambda: execfile(path, cwd, argv, env, encoding), ida_kernwin.MFF_WRITE)
+                # execfile(path, cwd, argv, env, encoding)
+                asyncio.create_task(execfile(path, cwd, argv, env, encoding))
+
+
+            case _:
+                print(f'[VSC] Unknown message type {msg["type"]}')
+                self.write_message({'type': MessageType.Error, 'info': 'Unknown message type'})
 
     def on_close(self) -> None:
         print('[VSC] Connect closed')
@@ -87,7 +100,7 @@ class Server(object):
         self.app = tornado.web.Application([(r'/', _Server)])
         self.server = tornado.httpserver.HTTPServer(self.app)
         self.thread = threading.Thread(target=self._start)
-        self.thread.daemon = False
+        self.thread.daemon = True
         self.ioloop = None
         
     @property
@@ -100,7 +113,7 @@ class Server(object):
             if self.thread.ident is not None:
                 # threads can only be started once
                 self.thread = threading.Thread(target=self._start)
-                self.thread.daemon = False
+                self.thread.daemon = True
             self.thread.start()
         else:
             print('server is already running')
@@ -114,6 +127,7 @@ class Server(object):
 
     def stop(self):
         '''stop server'''
+        global dbgsrv_running
         if not self.running:
             return
         # self.ioloop.stop()
@@ -124,7 +138,7 @@ class Server(object):
         self.thread.join()
         
         self.thread = threading.Thread(target=self._start)
-        self.thread.daemon = False
+        self.thread.daemon = True
 
-        if self.app.wildcard_router.rules[0].target.dbgsrv_running:
+        if dbgsrv_running:
             raise DebugServerCannotStopError('Debug server cannot be stopped currently.\ncheck here: https://github.com/microsoft/debugpy/issues/870')

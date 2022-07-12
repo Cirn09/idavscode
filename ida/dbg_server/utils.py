@@ -1,9 +1,10 @@
 import re, os, sys
+import ida_kernwin
 
 PYTHON_DEFAULT_ENCODING = os.getenv('PYTHONIOENCODING', 'utf-8')
 
 
-def execfile(path: str,
+async def execfile(path: str,
              cwd=None,
              argv=[],
              env={},
@@ -43,7 +44,10 @@ def execfile(path: str,
 
     code = compile(code_text, path, 'exec')
 
-    exec(code, globals)
+    import debugpy
+    debugpy.wait_for_client()
+
+    ida_kernwin.execute_sync(lambda: exec(code, globals), ida_kernwin.MFF_WRITE)
 
     # restore
     sys.argv = orig_argv
