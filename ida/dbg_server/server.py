@@ -16,6 +16,7 @@ class MessageType(object):
 
     ServerReady = 'serverReady'
     DebugServerReady = 'debugServerReady'
+    DebugFinished = 'debugFinished'
     Error = 'error'
 
 dbgsrv_running = False
@@ -32,10 +33,10 @@ class _Server(tornado.websocket.WebSocketHandler):
     def on_message(self, message: str):
         global dbgsrv_running
         msg = json.loads(message)
-        
-        match msg['type']:
-            case MessageType.StartDebugServer:
-                try:
+        try:
+            
+            match msg['type']:
+                case MessageType.StartDebugServer:
                     if not dbgsrv_running:
                         host = msg['host']
                         port = msg['port']
@@ -53,42 +54,41 @@ class _Server(tornado.websocket.WebSocketHandler):
                         print(f'[VSC] Debug server started on {host}:{port}')
                         dbgsrv_running = True
                     self.write_message({'type': MessageType.DebugServerReady})
-                except RuntimeError as e:
-                    self.write_message({'type': MessageType.Error, 'message': str(e)})
-                    print(e)
-                
-            case MessageType.StopDebugServer:
-                # https://github.com/microsoft/debugpy/issues/870
-                self.write_message({'type': MessageType.Error, 'info': 'Not implemented'})
-                raise NotImplementedError
-            case MessageType.StopServer:
-                self.write_message({'type': MessageType.ServerReady})
-                print('[VSC] Server stopped')
-                self.close()
-            case MessageType.ExecuteScript:
-                if not dbgsrv_running:
-                    self.write_message({'type': MessageType.Error, 'info': 'debug server is not running'})
-                    return
+                    
+                case MessageType.StopDebugServer:
+                    # https://github.com/microsoft/debugpy/issues/870
+                    self.write_message({'type': MessageType.Error, 'info': 'Not implemented'})
+                    raise NotImplementedError
+                case MessageType.StopServer:
+                    self.write_message({'type': MessageType.ServerReady})
+                    print('[VSC] Server stopped')
+                    self.close()
+                case MessageType.ExecuteScript:
+                    if not dbgsrv_running:
+                        self.write_message({'type': MessageType.Error, 'info': 'debug server is not running'})
+                        return
 
-                path = msg['path']
-                cwd = msg['cwd']
-                argv = msg.get('argv', [])
-                env = msg.get('env', {})
-                encoding = msg.get('encoding', None)
-                print(f'[VSC] Executing script {path}')
+                    path = msg['path']
+                    cwd = msg['cwd']
+                    argv = msg.get('argv', [])
+                    env = msg.get('env', {})
+                    encoding = msg.get('encoding', None)
+                    print(f'[VSC] Executing script {path}')
 
-                self.write_message({'type': MessageType.ServerReady})
+                    self.write_message({'type': MessageType.ServerReady})
 
-                # debugpy.wait_for_client()
-                # import ida_kernwin
-                # ida_kernwin.execute_sync(lambda: execfile(path, cwd, argv, env, encoding), ida_kernwin.MFF_WRITE)
-                # execfile(path, cwd, argv, env, encoding)
-                asyncio.create_task(execfile(path, cwd, argv, env, encoding))
+                    debugpy.wait_for_client()
+                    execfile(path, cwd, argv, env, encoding)
+
+                    self.write_message({'type': MessageType.DebugFinished})
 
 
-            case _:
-                print(f'[VSC] Unknown message type {msg["type"]}')
-                self.write_message({'type': MessageType.Error, 'info': 'Unknown message type'})
+                case _:
+                    print(f'[VSC] Unknown message type {msg["type"]}')
+                    self.write_message({'type': MessageType.Error, 'info': 'Unknown message type'})
+        except Exception as e:
+            self.write_message({'type': MessageType.Error, 'message': str(e)})
+            print(e)
 
     def on_close(self) -> None:
         print('[VSC] Connect closed')
