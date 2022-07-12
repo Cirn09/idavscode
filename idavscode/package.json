@@ -1,0 +1,174 @@
+{
+	"name": "idavscode",
+	"displayName": "IDAVSCode",
+	"description": "Debug IDAPython in VSCode",
+	"version": "0.0.1",
+    "publisher": "Cirn09",
+	"engines": {
+		"vscode": "^1.69.0"
+	},
+	"categories": [
+		"Debuggers"
+	],
+	"activationEvents": [
+		"onDebug",
+		"onDebugResolve:idapython",
+		"onDebugDynamicConfigurations:idapython"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"debuggers": [
+			{
+				"type": "idapython",
+				"languages": [
+					"python"
+				],
+				"label": "IDAPython",
+				"runtime": "python",
+				"configurationAttributes": {
+					"launch": {
+						"properties": {
+							"host": {
+								"type": "string",
+								"description": "server hostname",
+								"default": "localhost"
+							},
+							"port": {
+								"type": "integer",
+								"description": "server port",
+								"default": 5677
+							},
+							"program": {
+								"type": "string",
+								"description": "file to debug",
+								"default": "${file}"
+							},
+							"pythonPath": {
+								"type": "string",
+								"description": "python executable path",
+								"default": "${command:python.interpreterPath}"
+							},
+							"logFile": {
+								"type": "string",
+								"description": "debugpy log file path",
+								"default": ""
+							},
+							"debugConfig": {
+								"type": "object",
+								"description": "python extension config",
+								"properties": {
+									"justMyCode": {
+										"default": true,
+										"description": "If true, show and debug only user-written code. If false, show and debug all code, including library calls.",
+										"type": "boolean"
+									},
+									"connect": {
+										"label": "Attach by connecting to debugpy over a socket.",
+										"properties": {
+											"host": {
+												"default": "localhost",
+												"description": "Hostname or IP address to connect to.",
+												"type": "string"
+											},
+											"port": {
+												"default": 5678,
+												"description": "Port to connect to.",
+												"type": "number"
+											}
+										},
+										"required": [
+											"port"
+										],
+										"type": "object"
+									},
+									"cwd": {
+										"type": "string",
+										"description": "Absolute path to the working directory of the program being debugged. Default is the root directory of the file (leave empty).",
+										"default": "${workspaceFolder}"
+									},
+									"args": {
+										"type": "array",
+										"description": "Command line arguments passed to the program",
+										"default": [],
+										"items": {
+											"type": "string"
+										}
+									},
+									"env": {
+										"additionalProperties": {
+											"type": "string"
+										},
+										"default": {},
+										"description": "Environment variables defined as a key value pair. Property ends up being the Environment Variable and the value of the property ends up being the value of the Env Variable.",
+										"type": "object"
+									}
+								},
+								"required": [
+									"connect",
+									"cwd"
+								]
+							}
+						},
+						"required": [
+							"program",
+							"host",
+							"port",
+							"debugConfig"
+						]
+					}
+				},
+				"initialConfigurations": [],
+				"configurationSnippets": [
+					{
+						"label": "IDAPython Debug",
+						"description": "Launch, attach and debug",
+						"body": {
+							"name": "IDAPython debug",
+							"type": "idapython",
+							"request": "launch",
+							"program": "^\"\\${file}\"",
+							"host": "localhost",
+							"port": 5677,
+							"pythonPath": "^\"\\${command:python.interpreterPath}\"",
+							"logFile": "",
+							"debugConfig": {
+								"type": "python",
+								"request": "attach",
+								"justMyCode": true,
+								"connect": {
+									"port": 5678
+								},
+								"cwd": "^\"\\${workspaceFolder}\""
+							}
+						}
+					}
+				]
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.2.0",
+		"@types/mocha": "^9.1.1",
+		"@types/node": "16.x",
+		"@types/vscode": "^1.66.0",
+		"@types/ws": "^8.5.3",
+		"@typescript-eslint/eslint-plugin": "^5.30.0",
+		"@typescript-eslint/parser": "^5.30.0",
+		"@vscode/test-electron": "^2.1.5",
+		"eslint": "^8.18.0",
+		"glob": "^8.0.3",
+		"mocha": "^10.0.0",
+		"typescript": "^4.7.4"
+	},
+	"dependencies": {
+		"ws": "^8.8.0"
+	}
+}
