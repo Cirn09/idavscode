@@ -4,7 +4,7 @@ Debug IDAPython in VSCode!
 
 ## Features
 
-![](image/demo.webp)
+![](https://raw.githubusercontent.com/cirn09/idavscode/master/idavscode/image/demo.webp)
 ## Requirements
 
 Install [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) and [IDA plugin](GITHUB LINK HERE!) first.

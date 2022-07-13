@@ -4,6 +4,16 @@
 	"description": "Debug IDAPython in VSCode",
 	"version": "0.0.1",
     "publisher": "Cirn09",
+    "preview": true,
+    "homepage": "https://github.com/cirn09/idavscode/idavscode",
+    "bugs": {
+        "url": "https://github.com/cirn09/idavscode/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/cirn09/idavscode/tree/master/idavscode"
+    },
+	"keywords": ["ida", "idapython"],
 	"engines": {
 		"vscode": "^1.69.0"
 	},
