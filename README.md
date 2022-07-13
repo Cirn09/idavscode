@@ -24,7 +24,7 @@
 ## Install
 
 1. 下载 IDA 插件，并解压到 Plugin 文件夹；
-2. 安装 [Vscode 拓展](VSCODE LINK HRER!!!)
+2. 安装 [Vscode 拓展](https://marketplace.visualstudio.com/items?itemName=Cirn09.idavscode)
 
 ## launch.json
 
