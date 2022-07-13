@@ -12,7 +12,7 @@ const enum MessageType {
 
 	serverReady = 'serverReady',
 	debugServerReady = 'debugServerReady',
-    debugFinished = 'debugFinished',
+	debugFinished = 'debugFinished',
 	error = 'error'
 }
 
@@ -74,6 +74,7 @@ class IDAPythonConfigurationProvider implements vscode.DebugConfigurationProvide
 		config.debugConfig.redirectOutput = true;
 		config.debugConfig.showReturnValue = true;
 		config.debugConfig.debugOptions = ["RedirectOutput", "ShowReturnValue"];
+		if (!config.debugConfig.cwd) { config.debugConfig.cwd = '${workspaceFolder}'; }
 		if (!config.debugConfig.connect.host) { config.debugConfig.connect.host = config.host; }
 
 		return config;
@@ -81,9 +82,6 @@ class IDAPythonConfigurationProvider implements vscode.DebugConfigurationProvide
 
 	resolveDebugConfigurationWithSubstitutedVariables(folder: WorkspaceFolder | undefined, config: DebugConfiguration, token?: CancellationToken): ProviderResult<DebugConfiguration> {
 
-		// let debugConfig = remoteIDAPythonExec(config);
-
-		// return config.debugConfig;
 		return remoteIDAPythonExec(config);
 	}
 }
@@ -125,7 +123,7 @@ function _remoteIDAPythonExec(config: DebugConfiguration): Promise<string> {
 						// 'encoding': config.encoding
 					}));
 					break;
-					
+
 				case MessageType.serverReady:
 					resolve('ok');
 					break;
