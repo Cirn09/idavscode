@@ -72,6 +72,7 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 
     实际观察，通过 `resolveDebugConfigurationWithSubstitutedVariables` 替换任务的效果和调用 `vscode.debug.startDebugging` 的效果不完全一致。抓包发现，前者创建的调试 session 少了一些选项，推测是这种方法绕过了一些 `launch.json -> session config` 流程。
 
+- [ ] `launch.json` 中的 `pythonPath` 会被自动修正为 `python`，不确定是我这边才有的问题还是普遍存在。
 - [ ] 图标
 - [ ] 测试
 - [ ] README-en.md
