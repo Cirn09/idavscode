@@ -64,6 +64,8 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 
 ## 已知缺陷和待办
 
+- [ ] 被调试脚本触发异常后，无法正常再次调试。
+
 - [ ] 调试服务无法终止：调试服务使用了 [debugpy](https://github.com/microsoft/debugpy)，debugpy 目前只提供了启动服务的接口，没有停止服务的接口 ([相关issue](https://github.com/microsoft/debugpy/issues/870))。所以调试服务启动后，debugpy会一直占用调试端口。
 
     暂时的解决方案：可以手动重启 IDA，或者结束 IDA 的 Python 子进程（这个子进程是debugpy启动的，IDAPython 使用 Python.dll，不会启动单独的 Python 进程）
