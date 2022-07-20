@@ -42,8 +42,11 @@ def execfile(path: str,
     os.chdir(cwd)
 
 
-    code = compile(code_text, path, 'exec')
+    ida_kernwin.execute_sync(lambda: ida_kernwin.refresh_idaview_anyway(), ida_kernwin.MFF_WRITE)
+    
+    code = compile(code_text, path, 'exec', optimize=0)
     ida_kernwin.execute_sync(lambda: exec(code, globals), ida_kernwin.MFF_WRITE)
+    
 
     # restore
     sys.argv = orig_argv
