@@ -4,11 +4,7 @@ import ida_kernwin
 PYTHON_DEFAULT_ENCODING = os.getenv('PYTHONIOENCODING', 'utf-8')
 
 
-def execfile(path: str,
-             cwd=None,
-             argv=[],
-             env={},
-             encoding=None) -> None:
+def execfile(path: str, cwd=None, argv=[], env={}, encoding=None) -> None:
     if encoding is None:
         with open(path, 'rb') as f:
             raw = f.read()
@@ -26,10 +22,7 @@ def execfile(path: str,
         with open(path, 'r', encoding=encoding) as f:
             code_text = f.read()
 
-    globals = {
-        '__name__': '__main__',
-        '__file__': path
-    }
+    globals = {'__name__': '__main__', '__file__': path}
 
     # patch
     orig_argv = sys.argv
@@ -40,15 +33,20 @@ def execfile(path: str,
     if not cwd:
         cwd = os.path.split(os.path.abspath(path))[0]
     os.chdir(cwd)
+    orig_modules = sys.modules.copy()
 
+    ida_kernwin.execute_sync(lambda: ida_kernwin.refresh_idaview_anyway(),
+                             ida_kernwin.MFF_WRITE)
 
-    ida_kernwin.execute_sync(lambda: ida_kernwin.refresh_idaview_anyway(), ida_kernwin.MFF_WRITE)
-    
     code = compile(code_text, path, 'exec', optimize=0)
-    ida_kernwin.execute_sync(lambda: exec(code, globals), ida_kernwin.MFF_WRITE)
-    
+    ida_kernwin.execute_sync(lambda: exec(code, globals),
+                             ida_kernwin.MFF_WRITE)
 
     # restore
     sys.argv = orig_argv
     os.environ = orig_env
     os.chdir(orig_cwd)
+    for k in list(sys.modules.keys()):
+        if k not in orig_modules:
+            # https://docs.python.org/3/reference/import.html#the-module-cache
+            del sys.modules[k]
