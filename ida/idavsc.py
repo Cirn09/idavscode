@@ -145,24 +145,24 @@ class OptionMenuHandle(MenuHandle):
 
 class OptionDialog(ida_kernwin.Form):
 
-    def __init__(self, hostname, control_port):
+    def __init__(self, host, control_port):
         super(OptionDialog, self).__init__(
             r"""STARTITEM 0
 BUTTON YES* OK
 IDACODE :: OPTION
 
-<Hostname       :{c_hostname}>
+<Hostname       :{c_host}>
 <Port           :{c_port}>
             """, {
-                'c_hostname': self.StringInput(value=hostname),
+                'c_host': self.StringInput(value=host),
                 'c_port': self.NumericInput(value=control_port, tp=self.FT_DEC),
             })
 
         self.Compile()
 
     @property
-    def hostname(self):
-        return self.c_hostname.value
+    def host(self):
+        return self.c_host.value
 
     @property
     def port(self):
