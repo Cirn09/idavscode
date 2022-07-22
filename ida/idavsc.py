@@ -35,6 +35,8 @@ class Plugin(idaapi.plugin_t):
         StopMenuHandle.register(self)
         OptionMenuHandle.register(self)
 
+        return idaapi.PLUGIN_KEEP
+
     def run(self, arg):
         """
         This is called by IDA when this file is loaded as a script.

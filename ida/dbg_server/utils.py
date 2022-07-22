@@ -35,8 +35,17 @@ def execfile(path: str, cwd=None, argv=[], env={}, encoding=None) -> None:
     os.chdir(cwd)
     orig_modules = sys.modules.copy()
 
-    ida_kernwin.execute_sync(lambda: ida_kernwin.refresh_idaview_anyway(),
-                             ida_kernwin.MFF_WRITE)
+    prapare_code = '''
+import debugpy
+debugpy.debug_this_thread()
+debugpy.wait_for_client()
+
+import ida_kernwin
+ida_kernwin.refresh_idaview_anyway()
+    '''
+    prapare = compile(prapare_code, '', 'exec')
+
+    ida_kernwin.execute_sync(lambda: exec(prapare), ida_kernwin.MFF_WRITE)
 
     code = compile(code_text, path, 'exec', optimize=0)
     ida_kernwin.execute_sync(lambda: exec(code, globals),

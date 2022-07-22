@@ -88,7 +88,7 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 
     还是 debugpy 没有提供关闭接口问题的延续，关闭 idb 时 ida 会卸载插件，重开又会重新加载。
 
-    添加 `PLUGIN_FIX` 属性即可解决。
+    添加 `PLUGIN_FIX` 属性，每次调试前都调用 `debugpy.debug_this_thread()` 即可解决。
 
 - [ ] （可能存在）Python调试设置不生效：VSCode 插件拦截替换调试任务使用的是 `vscode.DebugConfigurationProvider { resolveDebugConfiguration, resolveDebugConfigurationWithSubstitutedVariables }` 两个接口，其中使用 `resolveDebugConfiguration` 补充调试配置、使用 `resolveDebugConfigurationWithSubstitutedVariables` 替换调试任务。
 
