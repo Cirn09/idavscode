@@ -84,6 +84,12 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 
     暂时的解决方案：可以手动重启 IDA，或者结束 IDA 的 Python 子进程（这个子进程是debugpy启动的，IDAPython 使用 Python.dll，不会启动单独的 Python 进程）
 
+- [x] 进行过一次调试、关闭 idb/i64、重新打开新 idb/i64 后无法正常调试（无法设置断点，stdout没有正确转发）。
+
+    还是 debugpy 没有提供关闭接口问题的延续，关闭 idb 时 ida 会卸载插件，重开又会重新加载。
+
+    添加 `PLUGIN_FIX` 属性即可解决。
+
 - [ ] （可能存在）Python调试设置不生效：VSCode 插件拦截替换调试任务使用的是 `vscode.DebugConfigurationProvider { resolveDebugConfiguration, resolveDebugConfigurationWithSubstitutedVariables }` 两个接口，其中使用 `resolveDebugConfiguration` 补充调试配置、使用 `resolveDebugConfigurationWithSubstitutedVariables` 替换调试任务。
 
     实际观察，通过 `resolveDebugConfigurationWithSubstitutedVariables` 替换任务的效果和调用 `vscode.debug.startDebugging` 的效果不完全一致。抓包发现，前者创建的调试 session 少了一些选项，推测是这种方法绕过了一些 `launch.json -> session config` 流程。

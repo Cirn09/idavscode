@@ -13,7 +13,9 @@ class Plugin(idaapi.plugin_t):
 
     def __init__(self) -> None:
         self.comment = "IDAPython VSCode Debugger"
-        self.flags = idaapi.PLUGIN_HIDE
+        # PLUGIN_HIDE: do not show this plugin in the Edit->Plugins menu
+        # PLUGIN_FIX: keep plugin loaded until IDA stops. because have no way to stop debugpy
+        self.flags = idaapi.PLUGIN_HIDE | idaapi.PLUGIN_FIX
         self.wanted_name = "IDAVSC"
         if not os.path.exists(CONFIG_FILE):
             self.config = Config()
