@@ -72,13 +72,9 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 
     应该和IDAPython线程有关，控制和调试服务都是运行在子线程上，被调试脚本通过 `ida_kernwin.execute_sync` 运行在主线程。添加 `ida_kernwin.refresh_idaview_anyway()` 似乎就正常了。
 
-- [x] 对由被调试脚本 import 的模块的修改不会生效。
+- [ ] 对由被调试脚本 import 的模块的修改不会生效。
 
-    Python对模块有缓存机制，除非调用 `importlib.reload`，否则模块不会重新加载。
-
-    解决方案有两个，一是在调试前保存缓存，调试后恢复缓存，当前的解决方案就是如此。不过这个方案有潜在的缺陷，具体可以看 Python 文档对这部分的说明：https://docs.python.org/3/reference/import.html#the-module-cache
-
-    另一个方案是实现 import hook。
+    https://github.com/Cirn09/idavscode/issues/1
 
 - [ ] 调试服务无法终止：调试服务使用了 [debugpy](https://github.com/microsoft/debugpy)，debugpy 目前只提供了启动服务的接口，没有停止服务的接口 ([相关issue](https://github.com/microsoft/debugpy/issues/870))。所以调试服务启动后，debugpy会一直占用调试端口。
 
