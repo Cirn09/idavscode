@@ -6,7 +6,7 @@ import debugpy
 import tornado.httpserver, tornado.web, tornado.websocket
 
 from .config import Config
-from .utils import execfile
+from .utils import PythonFile
 
 class MessageType(object):
     StartDebugServer = 'startDebugServer'
@@ -75,10 +75,12 @@ class _Server(tornado.websocket.WebSocketHandler):
                     encoding = msg.get('encoding', None)
                     print(f'[VSC] Executing script {path}')
 
+                    pf = PythonFile(path, cwd, argv, env, encoding)
+
                     self.write_message({'type': MessageType.ServerReady})
 
                     debugpy.wait_for_client()
-                    execfile(path, cwd, argv, env, encoding)
+                    pf.exec()
 
                     self.write_message({'type': MessageType.DebugFinished})
 
@@ -87,8 +89,9 @@ class _Server(tornado.websocket.WebSocketHandler):
                     print(f'[VSC] Unknown message type {msg["type"]}')
                     self.write_message({'type': MessageType.Error, 'info': 'Unknown message type'})
         except Exception as e:
-            self.write_message({'type': MessageType.Error, 'message': str(e)})
-            print(e)
+            info = f'{e.__class__.__name__}: {e}'
+            self.write_message({'type': MessageType.Error, 'info': info})
+            print(f'[!!!] {info}')
 
     def on_close(self) -> None:
         print('[VSC] Connect closed')
@@ -116,7 +119,7 @@ class Server(object):
                 self.thread.daemon = True
             self.thread.start()
         else:
-            print('server is already running')
+            print('[VSC] server is already running')
     
     def _start(self):
         # if sys.version_info >= (3, 4):

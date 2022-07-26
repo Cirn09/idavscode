@@ -91,9 +91,8 @@ async function remoteIDAPythonExec(config: DebugConfiguration): Promise<DebugCon
 	if (await r === 'ok') {
 		return config.debugConfig;
 	} else {
-		return vscode.window.showInformationMessage(await r).then(_ => {
-			return undefined;	// abort launch
-		});
+		vscode.window.showErrorMessage(await r);
+		return undefined;	// abort launch
 	}
 }
 
