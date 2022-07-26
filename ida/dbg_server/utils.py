@@ -3,6 +3,8 @@ import ida_kernwin
 
 PYTHON_DEFAULT_ENCODING = os.getenv('PYTHONIOENCODING', 'utf-8')
 
+class UnknowEncodingError(Exception):
+    pass
 
 class PythonFile(object):
 
@@ -22,16 +24,21 @@ class PythonFile(object):
             with open(self.path, 'rb') as f:
                 raw = f.read()
 
-            self.encoding = PYTHON_DEFAULT_ENCODING
-            encoding_pat = re.compile(r'\s*#.*coding[:=]\s*([-\w.]+).*')
-            for line in raw.decode(self.encoding,
-                                   errors='replace').split("\n"):
-                match = encoding_pat.match(line)
-                if match:
-                    self.encoding = match.group(1)
-                    break
-
-            code_text = raw.decode(self.encoding)
+            try:
+                code_text = raw.decode(PYTHON_DEFAULT_ENCODING)
+                self.encoding = PYTHON_DEFAULT_ENCODING
+            except UnicodeDecodeError:
+                encoding_pat = re.compile(r'\s*#.*coding[:=]\s*([-\w.]+).*')
+                for line in raw.decode(self.encoding,
+                                    errors='replace').split("\n"):
+                    match = encoding_pat.match(line)
+                    if match:
+                        self.encoding = match.group(1)
+                        break
+                
+                if self.encoding is None:
+                    raise UnknowEncodingError('unknow file encoding')
+                code_text = raw.decode(self.encoding)
         else:
             with open(self.path, 'r', encoding=self.encoding) as f:
                 code_text = f.read()
