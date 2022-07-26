@@ -15,13 +15,18 @@ class PythonFile(object):
         self.env = env
         self.encoding = encoding
 
-        self.globals = {'__name__': '__main__', '__file__': path}
+        if os.path.isabs(self.path):
+            self.abspath = self.path
+        else:
+            self.abspath = os.path.join(self.cwd, self.path)
+
+        self.globals = {'__name__': '__main__', '__file__': self.abspath}
 
         self.compile()
 
     def compile(self):
         if self.encoding is None:
-            with open(self.path, 'rb') as f:
+            with open(self.abspath, 'rb') as f:
                 raw = f.read()
 
             try:
@@ -40,10 +45,10 @@ class PythonFile(object):
                     raise UnknowEncodingError('unknow file encoding')
                 code_text = raw.decode(self.encoding)
         else:
-            with open(self.path, 'r', encoding=self.encoding) as f:
+            with open(self.abspath, 'r', encoding=self.encoding) as f:
                 code_text = f.read()
 
-        self.code = compile(code_text, self.path, 'exec', optimize=0)
+        self.code = compile(code_text, self.abspath, 'exec', optimize=0)
 
     def _before_exec(self):
         # patch
@@ -52,8 +57,6 @@ class PythonFile(object):
         self._orig_env = os.environ.copy()
         os.environ.update(self.env)
         self._orig_cwd = os.getcwd()
-        if not self.cwd:
-            self.cwd = os.path.split(os.path.abspath(self.path))[0]
         os.chdir(self.cwd)
         self._orig_modules = sys.modules.copy()
 
