@@ -36,12 +36,4 @@ Install [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.p
 
 ## Known Issues
 
-![Known Issues](GITHUB LINK HERE!!!)
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 0.0.1
-
-Initial release
+See [Known Issues](https://github.com/Cirn09/idavscode/blob/master/README_en.md#Known_Issues)

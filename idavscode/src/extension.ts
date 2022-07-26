@@ -120,6 +120,7 @@ function _remoteIDAPythonExec(config: DebugConfiguration): Promise<string> {
 						'argv': config.debugConfig.args,
 						'env': config.debugConfig.env,
 						// 'encoding': config.encoding
+						// sadly, vscode seem to not provide api to get file encoding
 					}));
 					break;
 
