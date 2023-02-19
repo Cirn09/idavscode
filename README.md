@@ -68,6 +68,8 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 
 所以解决以下以及其他潜在缺陷最好的方案是使用 C++ 重构。
 
+- [ ] `idc.ARGV`
+
 - [x] 被调试脚本触发异常后，无法正常再次调试。
 
     应该和IDAPython线程有关，控制和调试服务都是运行在子线程上，被调试脚本通过 `ida_kernwin.execute_sync` 运行在主线程。添加 `ida_kernwin.refresh_idaview_anyway()` 似乎就正常了。
