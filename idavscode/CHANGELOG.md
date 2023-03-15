@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.0.4 - 2023.03.15
+
+### Added
+
+- Support `idc.ARGV`
+- Adding connect timeout
+
 ## 0.0.3 - 2022.07.26
 
 ### Changed
