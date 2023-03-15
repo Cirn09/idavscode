@@ -19,6 +19,7 @@ Install [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.p
     "program": "${file}",
     "host": "localhost",                                // control hostname
     "port": 5677,                                       // control port
+    "timeout": 3000,                                    // timeout for connect
     "pythonPath": "${command:python.interpreterPath}",  // python path (IDA used)
     "logFile": "",                                      // debug log file
     "debugConfig": {                                    // Python extension debug config

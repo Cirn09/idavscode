@@ -40,6 +40,7 @@ class IDAPythonConfigurationProvider implements vscode.DebugConfigurationProvide
 				"program": "${file}",
 				"host": "localhost",
 				"port": 5677,
+				"timeout": 3000,
 				"pythonPath": "${command:python.interpreterPath}",
 				"logFile": "",
 				"debugConfig": {
@@ -69,6 +70,7 @@ class IDAPythonConfigurationProvider implements vscode.DebugConfigurationProvide
 
 		if (!config.program) { config.program = '${file}'; }
 		if (!config.pythonPath) { config.pythonPath = '${command:python.interpreterPath}'; }
+		if (config.timeout === undefined) { config.timeout = 3000; }
 		config.debugConfig.type = 'python';
 		config.debugConfig.request = 'attach';
 		config.debugConfig.redirectOutput = true;
@@ -86,20 +88,39 @@ class IDAPythonConfigurationProvider implements vscode.DebugConfigurationProvide
 	}
 }
 
+
 async function remoteIDAPythonExec(config: DebugConfiguration): Promise<DebugConfiguration | undefined> {
-	let r = _remoteIDAPythonExec(config);
-	if (await r === 'ok') {
+	try {
+		await _remoteIDAPythonExec(config);
+		vscode.commands.executeCommand('workbench.debug.action.focusRepl');
 		return config.debugConfig;
-	} else {
-		vscode.window.showErrorMessage(await r);
+	}
+	catch (e: Error | string | any) {
+		vscode.window.showErrorMessage(e);
 		return undefined;	// abort launch
 	}
 }
 
 function _remoteIDAPythonExec(config: DebugConfiguration): Promise<string> {
 	let socket = new WebSocket(`ws://${config.host}:${config.port}/`);
+	let timer: NodeJS.Timeout | undefined = undefined;
+
+	const clearTimer = () => {
+		if (timer) {
+			clearTimeout(timer);
+			timer = undefined;
+		}
+	};
+
 	return new Promise((resolve, reject) => {
+
+		timer = setTimeout(() => {
+			socket.close();
+			reject(new Error(`WebSocket connection timeout after ${config.timeout} ms`));
+		}, config.timeout);
+
 		socket.on('open', () => {
+			clearTimer();
 			socket.send(JSON.stringify({
 				'type': MessageType.startDebugServer,
 				'host': config.debugConfig.connect.host,
@@ -126,17 +147,24 @@ function _remoteIDAPythonExec(config: DebugConfiguration): Promise<string> {
 
 				case MessageType.serverReady:
 					resolve('ok');
+					socket.close();
 					break;
+
 				case MessageType.debugFinished:
 					socket.close();
 					vscode.debug.stopDebugging();
 					break;
+
 				case MessageType.error:
-					resolve(json.info);
+					reject(json.info);
 					socket.close();
 					break;
 			}
 		});
 
+		socket.on('error', (err) => {
+			clearTimer();
+			reject(err);
+		});
 	});
 }

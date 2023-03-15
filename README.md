@@ -38,6 +38,7 @@
                                                         // 和 IDA 端一致
     "port": 5677,                                       // control port
                                                         // 和 IDA 端一致
+    "timeout": 3000,                                    // 连接失败超时
     "pythonPath": "${command:python.interpreterPath}",  // python path (IDA used)
                                                         // VSCode 和 IDA 使用同版本的话就不用管这字段了
     "logFile": "",                                      // debug log file
