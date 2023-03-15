@@ -32,7 +32,7 @@ class _Server(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message: str):
         global dbgsrv_running
-        msg = json.loads(message)
+        msg: dict = json.loads(message)
         try:
             
             match msg['type']:

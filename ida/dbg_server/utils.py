@@ -1,4 +1,6 @@
 import re, os, sys
+
+import idc
 import ida_kernwin
 
 PYTHON_DEFAULT_ENCODING = os.getenv("PYTHONIOENCODING", "utf-8")
@@ -12,7 +14,8 @@ class PythonFile(object):
     def __init__(self, path: str, cwd=None, argv=[], env={}, encoding=None):
         self.path = path
         self.cwd = cwd
-        self.argv = argv
+        self.argv = [self.path]
+        self.argv.extend(argv)
         self.env = env
         self.encoding = encoding
 
@@ -53,7 +56,9 @@ class PythonFile(object):
     def _before_exec(self):
         # patch
         self._orig_argv = sys.argv
-        sys.argv = self.argv
+        sys.argv = [self.path]
+        self._orig_idc_argv = idc.ARGV
+        idc.ARGV = self.argv
         self._orig_env = os.environ.copy()
         os.environ.update(self.env)
         self._orig_cwd = os.getcwd()
@@ -82,6 +87,7 @@ ida_kernwin.refresh_idaview_anyway()
     def _after_exec(self):
         # restore
         sys.argv = self._orig_argv
+        idc.ARGV = self._orig_idc_argv
         os.environ = self._orig_env
         os.chdir(self._orig_cwd)
         for k in list(sys.modules.keys()):
