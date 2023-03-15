@@ -69,9 +69,9 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 
 所以解决以下以及其他潜在缺陷最好的方案是使用 C++ 重构。
 
-- [ ] `idc.ARGV`
+- [x] `idc.ARGV`
 
-- [ ] 取消调试/连接超时
+- [x] 取消调试/连接超时
 
 - [x] 被调试脚本触发异常后，无法正常再次调试。
 
@@ -80,6 +80,8 @@ VSCode 端拓展拦截调试任务，将调试上下文信息发送到 IDA 控�
 - [ ] 对由被调试脚本 import 的模块的修改不会生效。
 
     https://github.com/Cirn09/idavscode/issues/1
+
+    现在是一个不完美的解决方案。
 
 - [ ] 调试服务无法终止：调试服务使用了 [debugpy](https://github.com/microsoft/debugpy)，debugpy 目前只提供了启动服务的接口，没有停止服务的接口 ([相关issue](https://github.com/microsoft/debugpy/issues/870))。所以调试服务启动后，debugpy会一直占用调试端口。
 
