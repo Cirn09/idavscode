@@ -1,5 +1,12 @@
 # Change Log
 
+## 0.0.5 - 2023.03.20
+
+### Bug Fixes
+
+- Sometimes debugging doesn't auto stop after script stop
+- "timeout" in launch.json
+
 ## 0.0.4 - 2023.03.15
 
 ### Added

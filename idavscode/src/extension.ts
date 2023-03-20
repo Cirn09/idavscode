@@ -147,7 +147,6 @@ function _remoteIDAPythonExec(config: DebugConfiguration): Promise<string> {
 
 				case MessageType.serverReady:
 					resolve('ok');
-					socket.close();
 					break;
 
 				case MessageType.debugFinished:
