@@ -2,7 +2,7 @@
 	"name": "idavscode",
 	"displayName": "IDAVSCode",
 	"description": "Debug IDAPython in VSCode",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"publisher": "Cirn09",
 	"preview": true,
 	"homepage": "https://github.com/cirn09/idavscode/idavscode",
