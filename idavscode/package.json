@@ -2,18 +2,21 @@
 	"name": "idavscode",
 	"displayName": "IDAVSCode",
 	"description": "Debug IDAPython in VSCode",
-	"version": "0.0.3",
-    "publisher": "Cirn09",
-    "preview": true,
-    "homepage": "https://github.com/cirn09/idavscode/idavscode",
-    "bugs": {
-        "url": "https://github.com/cirn09/idavscode/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/cirn09/idavscode/tree/master/idavscode"
-    },
-	"keywords": ["ida", "idapython"],
+	"version": "0.0.4",
+	"publisher": "Cirn09",
+	"preview": true,
+	"homepage": "https://github.com/cirn09/idavscode/idavscode",
+	"bugs": {
+		"url": "https://github.com/cirn09/idavscode/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/cirn09/idavscode/tree/master/idavscode"
+	},
+	"keywords": [
+		"ida",
+		"idapython"
+	],
 	"engines": {
 		"vscode": "^1.69.0"
 	},
@@ -47,6 +50,11 @@
 								"type": "integer",
 								"description": "server port",
 								"default": 5677
+							},
+							"timeout": {
+								"type": "integer",
+								"description": "connect timeout",
+								"default": 3000
 							},
 							"program": {
 								"type": "string",
@@ -139,6 +147,7 @@
 							"program": "^\"\\${file}\"",
 							"host": "localhost",
 							"port": 5677,
+							"timeout": 3000,
 							"pythonPath": "^\"\\${command:python.interpreterPath}\"",
 							"logFile": "",
 							"debugConfig": {
