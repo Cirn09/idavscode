@@ -1,6 +1,7 @@
 import re, os, sys
 
 import idc
+import ida_pro
 import ida_kernwin
 
 PYTHON_DEFAULT_ENCODING = os.getenv("PYTHONIOENCODING", "utf-8")
@@ -63,6 +64,10 @@ class PythonFile(object):
         os.environ.update(self.env)
         self._orig_cwd = os.getcwd()
         os.chdir(self.cwd)
+        self._idp_qexit = ida_pro.qexit
+        ida_pro.qexit = lambda *_: None
+        self._idc_qexit = idc.qexit
+        idc.qexit = lambda *_: None
         self._orig_modules = sys.modules.copy()
 
         prapare_code = """
@@ -90,6 +95,8 @@ ida_kernwin.refresh_idaview_anyway()
         idc.ARGV = self._orig_idc_argv
         os.environ = self._orig_env
         os.chdir(self._orig_cwd)
+        ida_pro.qexit = self._idp_qexit
+        idc.qexit = self._idc_qexit
         for k in list(sys.modules.keys()):
             if k not in self._orig_modules:
                 # https://docs.python.org/3/reference/import.html#the-module-cache

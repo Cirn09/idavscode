@@ -13,6 +13,11 @@
 
 ![](idavscode/image/demo.webp)
 
+- 在 VSCode 中按下 <kbd>F5</kbd> 即可开始调试！
+- 调试时，可以直接通过 VSCode 中的 `args` 设置 `idc.ARGV`
+- Hook 了调试环境中的 `ida_pro.qexit, idc.qexit`，调试环境、生产环境无需额外判断
+
+
 ## Requirement
 
 
